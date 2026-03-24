@@ -1,0 +1,1743 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>监理工程师考试练习系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-brand h1 {
+            font-size: 1.5rem;
+            margin: 0;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-menu button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background 0.2s;
+            font-size: 1rem;
+        }
+
+        .nav-menu button:hover,
+        .nav-menu button.active {
+            background: rgba(255, 255, 255, 0.1);
+            border-bottom: 2px solid #667eea;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* 页面 */
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* 卡片样式 */
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .card h2 {
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+
+        /* 首页 */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-item h3 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-item p {
+            opacity: 0.9;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* 做题页面 */
+        .practice-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+        }
+
+        .questions-list {
+            background: white;
+            border-radius: 8px;
+            overflow-y: auto;
+            max-height: 600px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .question-item {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .question-item:hover {
+            background: #f5f5f5;
+        }
+
+        .question-item.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .question-num {
+            font-weight: bold;
+            min-width: 30px;
+        }
+
+        .question-title {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 0.9rem;
+        }
+
+        .answered-mark {
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        .question-detail {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #eee;
+        }
+
+        .difficulty {
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .difficulty.easy {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .difficulty.medium {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .difficulty.hard {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+
+        .question-content {
+            padding: 1.5rem 0;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option:hover {
+            background: #f9f9f9;
+        }
+
+        .option input[type="radio"] {
+            cursor: pointer;
+        }
+
+        .option input[type="radio"]:checked + label {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .explanation {
+            background: #f0f7ff;
+            border-left: 4px solid #667eea;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+
+        .explanation h4 {
+            margin-bottom: 0.5rem;
+            color: #667eea;
+        }
+
+        .explanation p {
+            margin: 0.5rem 0;
+            color: #333;
+        }
+
+        /* 记录页面 */
+        .records-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .record-stat {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .record-stat h4 {
+            color: #999;
+            margin-bottom: 0.5rem;
+        }
+
+        .record-stat .number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .records-table {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f5f5f5;
+            padding: 1rem;
+            text-align: left;
+            font-weight: bold;
+            border-bottom: 2px solid #ddd;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background: #fafafa;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .badge.correct {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .badge.wrong {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+
+        /* 总结页面 */
+        .summary-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .summary-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .summary-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+
+        .category-tag {
+            background: rgba(255, 255, 255, 0.3);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        .summary-content {
+            padding: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .summary-footer {
+            padding: 0.5rem 1.5rem 1.5rem;
+            text-align: right;
+            color: #999;
+            font-size: 0.85rem;
+        }
+
+        /* 表单 */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        /* 页脚 */
+        .footer {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: auto;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #999;
+        }
+
+        .empty-state h3 {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-menu {
+                gap: 1rem;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .practice-container {
+                grid-template-columns: 1fr;
+            }
+
+            .questions-list {
+                max-height: 300px;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .summary-list {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .filters input,
+        .filters select {
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .filters input {
+            flex: 1;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .tab-buttons {
+            display: flex;
+            margin-bottom: 1rem;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 0.5rem;
+            border: none;
+            background: #f5f5f5;
+            cursor: pointer;
+            border-radius: 4px 4px 0 0;
+        }
+
+        .tab-btn.active {
+            background: #007bff;
+            color: white;
+        }
+
+        .import-tab {
+            display: none;
+        }
+
+        .import-tab.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 导航栏 -->
+        <nav class="navbar">
+            <div class="nav-brand">
+                <h1>📚 监理工程师考试练习系统</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><button class="nav-btn active" data-page="home">首页</button></li>
+                <li><button class="nav-btn" data-page="practice">做题</button></li>
+                <li><button class="nav-btn" data-page="records">答题记录</button></li>
+                <li><button class="nav-btn" data-page="summary">知识总结</button></li>
+            </ul>
+        </nav>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <!-- 首页 -->
+            <div id="home" class="page active">
+                <div class="card">
+                    <h2>欢迎使用监理工程师考试练习系统</h2>
+                    <p style="color: #666; margin-bottom: 2rem;">这是一个专为监理工程师考试设计的在线练习平台，祝您学习愉快！</p>
+
+                    <div class="stats">
+                        <div class="stat-item">
+                            <h3 id="totalQuestions">0</h3>
+                            <p>道题目</p>
+                        </div>
+                        <div class="stat-item">
+                            <h3 id="correctCount">0</h3>
+                            <p>道答对</p>
+                        </div>
+                        <div class="stat-item">
+                            <h3 id="accuracy">0%</h3>
+                            <p>正确率</p>
+                        </div>
+                    </div>
+
+                    <div class="buttons">
+                        <button class="btn btn-primary nav-btn" data-page="practice">开始做题</button>
+                        <button class="btn btn-secondary nav-btn" data-page="records">查看记录</button>
+                        <button class="btn btn-secondary nav-btn" data-page="summary">知识总结</button>
+                        <button class="btn btn-secondary" onclick="loadSampleQuestions()">📚 加载样题库</button>
+                        <button class="btn btn-secondary" onclick="showImportModal()">导入题目</button>
+                    </div>
+
+                    <div class="remote-sync" style="margin-top: 1rem;">
+                        <input type="text" id="remoteUrlInput" placeholder="请输入远程题库 JSON URL，例如：https://.../questions-database.json" style="width: calc(100% - 140px); margin-bottom: 0.5rem;"/>
+                        <button class="btn btn-primary" style="width: 120px;" onclick="syncRemoteQuestions()">同步远程题库</button>
+                        <p style="margin-top: 0.5rem; color: #666; font-size: 0.9rem;">上传题库到GitCode并获取直接访问URL后，可在此处填写并同步。</p>
+                        <button class="btn btn-secondary" style="width: 100%; margin-top:0.5rem;" onclick="syncQuestionFolder()">自动加载题库目录（题库/manifest.json）</button>
+                        <p style="margin-top: 0.2rem; color: #666; font-size: 0.9rem;">在 `题库/manifest.json` 中写入新增题库文件链接，系统即可自动拉取。</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>主要功能</h2>
+                    <ul style="line-height: 2;">
+                        <li>📝 丰富的题库，涵盖历年考题</li>
+                        <li>📊 详细的答题统计和分析</li>
+                        <li>💯 错题自动回顾功能</li>
+                        <li>🎓 知识点总结和归纳</li>
+                        <li>🔍 灵活的题目搜索和分类</li>
+                        <li>💾 数据自动保存在本地浏览器</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 做题页面 -->
+            <div id="practice" class="page">
+                <div class="card">
+                    <h2>在线做题</h2>
+                    <div class="filters">
+                        <input type="text" id="searchInput" placeholder="搜索题目..." onkeyup="filterQuestions()">
+                        <select id="yearSelect" onchange="filterQuestions()">
+                            <option value="">全部年份</option>
+                        </select>
+                        <select id="subjectSelect" onchange="filterQuestions()">
+                            <option value="">全部科目</option>
+                        </select>
+                        <select id="wrongFilter" onchange="filterQuestions()">
+                            <option value="all">全部</option>
+                            <option value="wrong">仅错题</option>
+                            <option value="unanswered">未做</option>
+                        </select>
+                    </div>
+
+                    <div class="practice-container" id="practiceContainer" style="display: none;">
+                        <div class="questions-list" id="questionsList"></div>
+                        <div class="question-detail" id="questionDetail"></div>
+                    </div>
+
+                    <div id="emptyPractice" class="empty-state">
+                        <h3>暂无题目</h3>
+                        <p>请先导入题目或在知识总结页面添加相关内容</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 答题记录页面 -->
+            <div id="records" class="page">
+                <div class="card">
+                    <h2>答题记录</h2>
+
+                    <div class="records-stats">
+                        <div class="record-stat">
+                            <h4>总答题数</h4>
+                            <div class="number" id="totalRecords">0</div>
+                        </div>
+                        <div class="record-stat">
+                            <h4>答对数</h4>
+                            <div class="number" id="correctRecords">0</div>
+                        </div>
+                        <div class="record-stat">
+                            <h4>答错数</h4>
+                            <div class="number" id="wrongRecords">0</div>
+                        </div>
+                        <div class="record-stat">
+                            <h4>正确率</h4>
+                            <div class="number" id="correctRate">0%</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 1rem;">
+                        <select id="recordFilter" onchange="filterRecords()">
+                            <option value="">全部答题</option>
+                            <option value="correct">仅显示答对</option>
+                            <option value="wrong">仅显示答错</option>
+                        </select>
+                        <button class="btn btn-secondary btn-small" onclick="clearRecords()" style="margin-left: 1rem;">清除记录</button>
+                    </div>
+
+                    <div class="records-table" id="recordsTable"></div>
+                </div>
+            </div>
+
+            <!-- 知识总结页面 -->
+            <div id="summary" class="page">
+                <div class="card">
+                    <h2>知识总结</h2>
+                    <div style="margin-bottom: 2rem;">
+                        <button class="btn btn-primary" onclick="showAddSummaryModal()">+ 添加知识点</button>
+                    </div>
+                    <div class="summary-list" id="summaryList">
+                        <div class="empty-state">
+                            <h3>暂无知识点</h3>
+                            <p>点击上方按钮添加重点知识点</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 页脚 -->
+        <footer class="footer">
+            <p>© 2024 监理工程师考试练习系统 | 祝您考试顺利！</p>
+        </footer>
+    </div>
+
+    <!-- 导入题目模态框 -->
+    <div id="importModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>导入题目</h3>
+                <button class="close-btn" onclick="closeModal('importModal')">&times;</button>
+            </div>
+
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="switchImportTab('text')">粘贴导入</button>
+                <button class="tab-btn" onclick="switchImportTab('url')">URL导入</button>
+            </div>
+
+            <div id="textImport" class="import-tab active">
+                <div class="form-group">
+                    <label>JSON 格式题目数据</label>
+                    <textarea id="importText" placeholder="粘贴 JSON 格式的题目数据..."></textarea>
+                </div>
+            </div>
+
+            <div id="urlImport" class="import-tab">
+                <div class="form-group">
+                    <label>题库URL（支持GitHub raw, pastebin等）</label>
+                    <input type="text" id="baiduUrl" placeholder="https://raw.githubusercontent.com/...">
+                </div>
+                <div class="form-group">
+                    <label>密码（如果需要）</label>
+                    <input type="text" id="baiduPwd" placeholder="如果URL需要密码">
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
+                <button class="btn btn-secondary" onclick="closeModal('importModal')">取消</button>
+                <button class="btn btn-primary" onclick="importQuestions()">导入</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加知识点模态框 -->
+    <div id="summaryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>添加知识点</h3>
+                <button class="close-btn" onclick="closeModal('summaryModal')">&times;</button>
+            </div>
+
+            <div class="form-group">
+                <label>知识点标题</label>
+                <input type="text" id="summaryTitle" placeholder="例：监理工程师的基本职责">
+            </div>
+
+            <div class="form-group">
+                <label>分类</label>
+                <select id="summaryCategory">
+                    <option value="">选择分类</option>
+                    <option value="法律法规">法律法规</option>
+                    <option value="施工管理">施工管理</option>
+                    <option value="质量验收">质量验收</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>内容</label>
+                <textarea id="summaryContent" placeholder="详细的知识点内容..."></textarea>
+            </div>
+
+            <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
+                <button class="btn btn-secondary" onclick="closeModal('summaryModal')">取消</button>
+                <button class="btn btn-primary" onclick="addSummary()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 数据存储
+        const DB = {
+            questions: [],
+            records: [],
+            summaries: [],
+
+            init() {
+                const stored = localStorage.getItem('kaoshi_db');
+                if (stored) {
+                    const data = JSON.parse(stored);
+                    this.questions = data.questions || [];
+                    this.records = data.records || [];
+                    this.summaries = data.summaries || [];
+                } else {
+                    this.loadSampleData();
+                }
+                this.save();
+            },
+
+            loadSampleData() {
+                this.questions = [
+                    {
+                        id: 1,
+                        title: "什么是监理工程师？",
+                        content: "监理工程师是指经过全国统一考试，取得《监理工程师职业资格证书》，从事工程监理工作的专业人士。",
+                        category: "法律法规",
+                        difficulty: "easy",
+                        options: ["A. 工程管理人员", "B. 工程设计人员", "C. 工程监理人员", "D. 工程施工人员"],
+                        correctAnswer: "C",
+                        explanation: "监理工程师是指经过全国统一考试，取得证书，从事工程监理工作的专业人士。答案是C。"
+                    },
+                    {
+                        id: 2,
+                        title: "监理工程师的基本职责是什么？",
+                        content: "监理工程师在监理实施中的基本职责包括什么？",
+                        category: "法律法规",
+                        difficulty: "medium",
+                        options: ["A. 制定施工方案", "B. 对工程质量、投资、进度进行监理", "C. 组织工程施工", "D. 采购建筑材料"],
+                        correctAnswer: "B",
+                        explanation: "监理工程师的基本职责是对工程质量、投资、进度进行监理。"
+                    },
+                    {
+                        id: 3,
+                        title: "工程监理企业资质分为几个等级？",
+                        content: "根据相关规定，工程监理企业资质分为几个等级？",
+                        category: "施工管理",
+                        difficulty: "medium",
+                        options: ["A. 两级", "B. 三级", "C. 四级", "D. 五级"],
+                        correctAnswer: "B",
+                        explanation: "工程监理企业资质分为甲级、乙级、丙级三个等级。"
+                    }
+                ];
+            },
+
+            save() {
+                localStorage.setItem('kaoshi_db', JSON.stringify({
+                    questions: this.questions,
+                    records: this.records,
+                    summaries: this.summaries
+                }));
+            },
+
+            addQuestion(question) {
+                question.id = Math.max(...this.questions.map(q => q.id), 0) + 1;
+                this.questions.push(question);
+                this.save();
+            },
+
+            addRecord(questionId, userAnswer, isCorrect) {
+                this.records.push({
+                    id: Date.now(),
+                    questionId,
+                    userAnswer,
+                    isCorrect,
+                    timestamp: new Date().toLocaleString('zh-CN')
+                });
+                this.save();
+            },
+
+            addSummary(summary) {
+                summary.id = Date.now();
+                summary.createdAt = new Date().toLocaleString('zh-CN');
+                this.summaries.push(summary);
+                this.save();
+            },
+
+            clearRecords() {
+                this.records = [];
+                this.save();
+            }
+        };
+
+        // 初始化
+        DB.init();
+
+        // 如果有已保存的远程题库链接，则自动同步（首次加载可选）
+        const savedRemoteUrl = localStorage.getItem('remote_questions_url');
+        if (savedRemoteUrl) {
+            document.getElementById('remoteUrlInput').value = savedRemoteUrl;
+            syncRemoteQuestions().catch(() => {
+                // 自动同步失败时保持静默，用户可手动重试
+            });
+        }
+
+        // 加载样题库（60道题）
+        function loadSampleQuestions() {
+            const sampleQuestions = [
+  {
+    "id": 1,
+    "year": 2024,
+    "subject": "监理法规",
+    "chapter": "监理工程师职业资格与制度",
+    "difficulty": "easy",
+    "title": "下列关于监理工程师职业资格制度的说法，正确的是：",
+    "options": [
+      "A. 监理工程师职业资格由国家住房城乡建设部门单独管理",
+      "B. 监理工程师可以从事施工图设计审查工作",
+      "C. 监理工程师职业资格分为建筑工程、交通运输工程等专业类别",
+      "D. 监理工程师只能在具有监理资质的企业中执业"
+    ],
+    "correctAnswer": "C",
+    "explanation": "监理工程师职业资格分为建筑工程、交通运输工程、水利工程、铁路工程等多个专业类别。资格由国家和行业部门联合管理。"
+  },
+  {
+    "id": 2,
+    "year": 2024,
+    "subject": "监理法规",
+    "chapter": "建设工程监理的基本定义",
+    "difficulty": "easy",
+    "title": "工程监理是指：",
+    "options": [
+      "A. 对工程施工过程的全面控制",
+      "B. 由具有法定资格的监理企业接受建设单位委托，代表建设单位对施工质量、投资、进度的监督管理",
+      "C. 政府对工程项目的行政管理",
+      "D. 建设单位对自己工程项目的内部管理"
+    ],
+    "correctAnswer": "B",
+    "explanation": "工程监理是根据《建设工程监理规范》的定义，由具有法定资格的监理企业接受建设单位的委托，代表建设单位对建设工程施工质量、投资、进度进行监督管理的活动。"
+  },
+  {
+    "id": 3,
+    "year": 2024,
+    "subject": "监理法规",
+    "chapter": "监理工程师的权利与义务",
+    "difficulty": "medium",
+    "title": "关于监理工程师的权利，下列说法正确的是：",
+    "options": [
+      "A. 对不符合要求的施工活动有拒绝签字权",
+      "B. 可以决定工程项目的投资额度",
+      "C. 有权直接处罚承包商",
+      "D. 可以改变工程设计"
+    ],
+    "correctAnswer": "A",
+    "explanation": "监理工程师对不符合要求的施工活动有拒绝签字的权利，这是监理的核心权利。但监理工程师无权改变设计、直接处罚承包商或决定投资额度。"
+  },
+  {
+    "id": 4,
+    "year": 2024,
+    "subject": "监理法规",
+    "chapter": "监理企业资质管理",
+    "difficulty": "medium",
+    "title": "关于监理企业资质，下列说法正确的是：",
+    "options": [
+      "A. 监理企业可以超资质承揽工程监理业务",
+      "B. 甲级监理企业可以监理所有类型和规模的工程",
+      "C. 不同类别的监理资质可以相互替代使用",
+      "D. 监理企业应定期更新资质证书"
+    ],
+    "correctAnswer": "B",
+    "explanation": "甲级监理企业具有最高等级的资质，可以从事所有类别和规模的工程监理业务。企业不能超资质承揽业务，不同资质类别不可替代。"
+  },
+  {
+    "id": 5,
+    "year": 2024,
+    "subject": "监理法规",
+    "chapter": "工程监理的实施原则",
+    "difficulty": "easy",
+    "title": "工程监理实施的基本原则包括：",
+    "options": [
+      "A. 公正、独立、公开",
+      "B. 安全第一、质量第一、进度第一",
+      "C. 完全按照承包商意愿执行",
+      "D. 优先考虑投资节约"
+    ],
+    "correctAnswer": "A",
+    "explanation": "工程监理坚持公正、独立、公开的原则。监理企业应代表建设单位对工程进行监理，但要保持监理的独立性和公正性。"
+  },
+  {
+    "id": 6,
+    "year": 2024,
+    "subject": "合同管理",
+    "chapter": "工程合同的基本概念",
+    "difficulty": "easy",
+    "title": "建设工程合同是指：",
+    "options": [
+      "A. 建筑企业之间的任何协议",
+      "B. 建设单位与施工承包单位为完成建设工程而订立的合同",
+      "C. 政府部门与企业的所有合同",
+      "D. 任何涉及建筑的商业文件"
+    ],
+    "correctAnswer": "B",
+    "explanation": "建设工程合同是指发包人与承包人为完成建设工程并完成相关工作而订立的合同。通常指建设单位与施工承包单位间的合同关系。"
+  },
+  {
+    "id": 7,
+    "year": 2024,
+    "subject": "合同管理",
+    "chapter": "合同的法律效力",
+    "difficulty": "medium",
+    "title": "关于建设工程合同的法律效力，下列说法正确的是：",
+    "options": [
+      "A. 口头协议同样具有法律效力",
+      "B. 合同应以书面形式订立，书面形式包括电子形式",
+      "C. 没有签字的合同就不生效",
+      "D. 合同效力取决于签署人的身份"
+    ],
+    "correctAnswer": "B",
+    "explanation": "建设工程合同应当采用书面形式。书面形式包括纸质书面形式和电子形式。符合法定条件的电子合同具有与纸质合同相同的法律效力。"
+  },
+  {
+    "id": 8,
+    "year": 2024,
+    "subject": "合同管理",
+    "chapter": "工程变更的处理",
+    "difficulty": "medium",
+    "title": "关于工程变更，下列说法正确的是：",
+    "options": [
+      "A. 工程变更由承包商单方决定",
+      "B. 工程变更必须由监理工程师提出",
+      "C. 工程变更需要得到设计单位或发包人的书面指示",
+      "D. 工程变更不需要经过任何审批程序"
+    ],
+    "correctAnswer": "C",
+    "explanation": "工程变更是在施工过程中对原定工程进行的增加、减少或改变。工程变更应该获得设计单位或发包人（建设单位）的书面指示后才能进行。"
+  },
+  {
+    "id": 9,
+    "year": 2024,
+    "subject": "合同管理",
+    "chapter": "索赔与反索赔",
+    "difficulty": "hard",
+    "title": "关于承包商索赔，下列说法正确的是：",
+    "options": [
+      "A. 承包商可以随时提出索赔，不受时间限制",
+      "B. 承包商索赔需要提供相应的证明材料和证据",
+      "C. 发包人的任何过错都必然导致承包商取得经济补偿",
+      "D. 索赔金额由承包商自由决定"
+    ],
+    "correctAnswer": "B",
+    "explanation": "承包商索赔必须认真收集、保存、整理相关证明资料和证据。索赔应在规定期限内提出，且索赔金额应有证据支持。"
+  },
+  {
+    "id": 10,
+    "year": 2024,
+    "subject": "目标控制",
+    "chapter": "质量目标控制的基本概念",
+    "difficulty": "easy",
+    "title": "工程质量目标控制是指：",
+    "options": [
+      "A. 对工程施工后的质量检测",
+      "B. 在施工前、施工中、施工后全过程对工程质量的监督管理",
+      "C. 由施工单位自行负责的质量管理",
+      "D. 政府质量监督部门的唯一责任"
+    ],
+    "correctAnswer": "B",
+    "explanation": "工程质量目标控制是指在施工前制定质量目标和质量计划，施工中进行质量监理和验收，施工后进行质量评价的全过程监督管理。"
+  },
+  {
+    "id": 11,
+    "year": 2024,
+    "subject": "目标控制",
+    "chapter": "质量控制的原则",
+    "difficulty": "easy",
+    "title": "工程质量控制的投资原则是指：",
+    "options": [
+      "A. 质量必须是最好的，不考虑成本",
+      "B. 成本最低为主，忽视质量",
+      "C. 在确保质量的前提下，通过科学管理和合理的技术方案降低成本",
+      "D. 质量和成本完全无关"
+    ],
+    "correctAnswer": "C",
+    "explanation": "工程质量控制应遵循投资原则，即在确保工程质量符合规范要求的前提下，通过科学的管理内容和合理的技术方案，使工程投资趋于合理。"
+  },
+  {
+    "id": 12,
+    "year": 2024,
+    "subject": "目标控制",
+    "chapter": "质量验收标准",
+    "difficulty": "medium",
+    "title": "关于工程质量验收标准，下列说法正确的是：",
+    "options": [
+      "A. 工程质量验收标准由施工企业自行制定",
+      "B. 工程质量验收标准由国家统一规定",
+      "C. 每个监理机构都可以制定自己的验收标准",
+      "D. 质量验收标准无需遵循任何规范"
+    ],
+    "correctAnswer": "B",
+    "explanation": "工程质量验收标准由国家统一规定。建筑工程应按照《建筑工程施工质量验收规范》等国家规范进行质量验收。"
+  }
+];
+
+            // 将样题库题目添加到数据库
+            let addedCount = 0;
+            sampleQuestions.forEach(question => {
+                // 检查是否已存在这道题
+                if (!DB.questions.find(q => q.id === question.id)) {
+                    DB.questions.push(question);
+                    addedCount++;
+                }
+            });
+
+            DB.save();
+            alert(`✅ 成功加载了 ${addedCount} 道样题库题目！\n\n包括：\n- 监理法规：5道\n- 合同管理：4道\n- 目标控制：4道\n\n现在可以去"做题"页面开始练习了！`);
+            updateHomeStats();
+        }
+
+        // 页面切换
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const page = e.target.dataset.page;
+                switchPage(page);
+            });
+        });
+
+        function switchPage(pageName) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageName).classList.add('active');
+
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`[data-page="${pageName}"]`).classList.add('active');
+
+            if (pageName === 'home') {
+                updateHomeStats();
+            } else if (pageName === 'practice') {
+                initPractice();
+            } else if (pageName === 'records') {
+                updateRecords();
+            } else if (pageName === 'summary') {
+                updateSummary();
+            }
+        }
+
+        // 首页统计
+        function updateHomeStats() {
+            const totalQuestions = DB.questions.length;
+            const Records = DB.records;
+            const correctCount = Records.filter(r => r.isCorrect).length;
+            const accuracy = totalQuestions > 0 ? Math.round((correctCount / Records.length) * 100) : 0;
+
+            document.getElementById('totalQuestions').textContent = totalQuestions;
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('accuracy').textContent = (Records.length > 0 ? accuracy : 0) + '%';
+        }
+
+        // 做题模块
+        let currentQuestionIndex = 0;
+        let filteredQuestions = [];
+
+        function initPractice() {
+            filteredQuestions = DB.questions;
+            populateFilterOptions();
+            renderQuestionsList();
+            if (filteredQuestions.length > 0) {
+                currentQuestionIndex = 0;
+                renderQuestionDetail();
+            }
+        }
+
+        function populateFilterOptions() {
+            const years = new Set();
+            const subjects = new Set();
+
+            DB.questions.forEach(q => {
+                if (q.year) years.add(q.year);
+                if (q.subject) subjects.add(q.subject);
+            });
+
+            const yearSelect = document.getElementById('yearSelect');
+            const subjectSelect = document.getElementById('subjectSelect');
+
+            const currentYear = yearSelect.value;
+            const currentSubject = subjectSelect.value;
+
+            yearSelect.innerHTML = '<option value="">全部年份</option>' + [...years].sort((a,b)=>b-a).map(y => `<option value="${y}" ${currentYear==y? 'selected' : ''}>${y}</option>`).join('');
+            subjectSelect.innerHTML = '<option value="">全部科目</option>' + [...subjects].sort().map(s => `<option value="${s}" ${currentSubject==s? 'selected' : ''}>${s}</option>`).join('');
+        }
+
+        function filterQuestions() {
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            const year = document.getElementById('yearSelect').value;
+            const subject = document.getElementById('subjectSelect').value;
+            const wrongFilter = document.getElementById('wrongFilter').value;
+
+            filteredQuestions = DB.questions.filter(q => {
+                const matchSearch = q.title.toLowerCase().includes(searchText) || (q.content && q.content.toLowerCase().includes(searchText));
+                const matchYear = !year || String(q.year) === String(year);
+                const matchSubject = !subject || q.subject === subject;
+
+                let matchWrong = true;
+                if (wrongFilter === 'wrong') {
+                    matchWrong = DB.records.some(r => r.questionId === q.id && !r.isCorrect);
+                } else if (wrongFilter === 'unanswered') {
+                    matchWrong = !DB.records.some(r => r.questionId === q.id);
+                }
+
+                return matchSearch && matchYear && matchSubject && matchWrong;
+            });
+
+            currentQuestionIndex = 0;
+            renderQuestionsList();
+            if (filteredQuestions.length > 0) {
+                renderQuestionDetail();
+            } else {
+                document.getElementById('questionDetail').innerHTML = '<div class="empty-state"><p>没有符合条件的题目。</p></div>';
+            }
+        }
+
+        function renderQuestionsList() {
+            const container = document.getElementById('questionsContainer');
+            const practiceContainer = document.getElementById('practiceContainer');
+            const emptyPractice = document.getElementById('emptyPractice');
+
+            if (filteredQuestions.length === 0) {
+                practiceContainer.style.display = 'none';
+                emptyPractice.style.display = 'block';
+                return;
+            }
+
+            practiceContainer.style.display = 'grid';
+            emptyPractice.style.display = 'none';
+
+            let html = '';
+            filteredQuestions.forEach((q, index) => {
+                const isAnswered = DB.records.some(r => r.questionId === q.id);
+                html += `
+                    <div class="question-item ${index === currentQuestionIndex ? 'active' : ''}" onclick="selectQuestion(${index})">
+                        <div class="question-num">${index + 1}</div>
+                        <div class="question-title">${q.title}</div>
+                        ${isAnswered ? '<div class="answered-mark">✓</div>' : ''}
+                    </div>
+                `;
+            });
+
+            document.getElementById('questionsList').innerHTML = html;
+        }
+
+        function renderQuestionDetail() {
+            const q = filteredQuestions[currentQuestionIndex];
+            if (!q) return;
+
+            let html = `
+                <div class="question-header">
+                    <h3>第 ${currentQuestionIndex + 1} 题</h3>
+                    <span class="difficulty ${q.difficulty || 'easy'}">${q.difficulty || '普通'}</span>
+                </div>
+
+                <div class="question-content">
+                    ${q.content || q.title}
+                </div>
+            `;
+
+            if (q.options && q.options.length > 0) {
+                html += '<div class="options">';
+                q.options.forEach((opt, i) => {
+                    const id = `opt_${q.id}_${i}`;
+                    html += `
+                        <div class="option">
+                            <input type="radio" id="${id}" name="answer_${q.id}" value="${opt}">
+                            <label for="${id}">${opt}</label>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            } else {
+                html += `<textarea id="textAnswer_${q.id}" class="textarea" placeholder="请输入答案"></textarea>`;
+            }
+
+            const answered = DB.records.find(r => r.questionId === q.id);
+            if (answered) {
+                const isCorrect = answered.isCorrect;
+                html += `
+                    <div class="explanation">
+                        <h4>解析</h4>
+                        <p><strong>您的答案：</strong>${answered.userAnswer}</p>
+                        <p><strong>正确答案：</strong>${q.correctAnswer}</p>
+                        <p><strong>结果：</strong><span class="badge ${isCorrect ? 'correct' : 'wrong'}">${isCorrect ? '✓ 正确' : '✗ 错误'}</span></p>
+                        <p>${q.explanation || '暂无解析'}</p>
+                    </div>
+                `;
+            }
+
+            html += `
+                <div style="display: flex; gap: 1rem; margin-top: 2rem; justify-content: center;">
+                    <button class="btn btn-secondary" onclick="previousQuestion()" ${currentQuestionIndex === 0 ? 'disabled' : ''}>上一题</button>
+                    <button class="btn btn-primary" onclick="submitAnswer()">提交</button>
+                    <button class="btn btn-secondary" onclick="nextQuestion()" ${currentQuestionIndex === filteredQuestions.length - 1 ? 'disabled' : ''}>下一题</button>
+                </div>
+            `;
+
+            document.getElementById('questionDetail').innerHTML = html;
+        }
+
+        function selectQuestion(index) {
+            currentQuestionIndex = index;
+            renderQuestionsList();
+            renderQuestionDetail();
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < filteredQuestions.length - 1) {
+                currentQuestionIndex++;
+                renderQuestionsList();
+                renderQuestionDetail();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderQuestionsList();
+                renderQuestionDetail();
+            }
+        }
+
+        function submitAnswer() {
+            const q = filteredQuestions[currentQuestionIndex];
+            const alreadyAnswered = DB.records.some(r => r.questionId === q.id);
+
+            if (alreadyAnswered) {
+                nextQuestion();
+                return;
+            }
+
+            let userAnswer = '';
+            if (q.options && q.options.length > 0) {
+                const selected = document.querySelector(`input[name="answer_${q.id}"]:checked`);
+                userAnswer = selected ? selected.value : '';
+            } else {
+                userAnswer = document.getElementById(`textAnswer_${q.id}`)?.value || '';
+            }
+
+            if (!userAnswer) {
+                alert('请输入答案');
+                return;
+            }
+
+            const isCorrect = userAnswer === q.correctAnswer;
+            DB.addRecord(q.id, userAnswer, isCorrect);
+
+            renderQuestionDetail();
+        }
+
+        // 答题记录
+        function updateRecords() {
+            const records = DB.records;
+            const totalRecords = records.length;
+            const correctRecords = records.filter(r => r.isCorrect).length;
+            const wrongRecords = totalRecords - correctRecords;
+            const correctRate = totalRecords > 0 ? Math.round((correctRecords / totalRecords) * 100) : 0;
+
+            document.getElementById('totalRecords').textContent = totalRecords;
+            document.getElementById('correctRecords').textContent = correctRecords;
+            document.getElementById('wrongRecords').textContent = wrongRecords;
+            document.getElementById('correctRate').textContent = correctRate + '%';
+
+            renderRecordsTable();
+        }
+
+        function filterRecords() {
+            renderRecordsTable();
+        }
+
+        function renderRecordsTable() {
+            const filterType = document.getElementById('recordFilter').value;
+            let records = DB.records;
+
+            if (filterType === 'correct') {
+                records = records.filter(r => r.isCorrect);
+            } else if (filterType === 'wrong') {
+                records = records.filter(r => !r.isCorrect);
+            }
+
+            let html = '';
+            if (records.length === 0) {
+                html = '<div class="empty-state"><p>暂无记录</p></div>';
+            } else {
+                html = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>题号</th>
+                                <th>题目</th>
+                                <th>您的答案</th>
+                                <th>结果</th>
+                                <th>时间</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                records.forEach(record => {
+                    const question = DB.questions.find(q => q.id === record.questionId);
+                    html += `
+                        <tr>
+                            <td>${record.questionId}</td>
+                            <td>${question ? question.title : '未知题目'}</td>
+                            <td>${record.userAnswer}</td>
+                            <td><span class="badge ${record.isCorrect ? 'correct' : 'wrong'}">${record.isCorrect ? '✓ 正确' : '✗ 错误'}</span></td>
+                            <td>${record.timestamp}</td>
+                        </tr>
+                    `;
+                });
+
+                html += `
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            document.getElementById('recordsTable').innerHTML = html;
+        }
+
+        function clearRecords() {
+            if (confirm('确定要清除所有答题记录吗？此操作不可恢复！')) {
+                DB.clearRecords();
+                updateRecords();
+            }
+        }
+
+        // 知识总结
+        function updateSummary() {
+            renderSummaryList();
+        }
+
+        function renderSummaryList() {
+            if (DB.summaries.length === 0) {
+                document.getElementById('summaryList').innerHTML = `
+                    <div class="empty-state">
+                        <h3>暂无知识点</h3>
+                        <p>点击上方按钮添加重点知识点</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            DB.summaries.forEach(s => {
+                html += `
+                    <div class="summary-card">
+                        <div class="summary-header">
+                            <h3>${s.title}</h3>
+                            <span class="category-tag">${s.category}</span>
+                        </div>
+                        <div class="summary-content">
+                            ${s.content.replace(/\n/g, '<br>')}
+                        </div>
+                        <div class="summary-footer">
+                            ${s.createdAt}
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('summaryList').innerHTML = html;
+        }
+
+        function showAddSummaryModal() {
+            document.getElementById('summaryTitle').value = '';
+            document.getElementById('summaryCategory').value = '';
+            document.getElementById('summaryContent').value = '';
+            document.getElementById('summaryModal').classList.add('active');
+        }
+
+        function addSummary() {
+            const title = document.getElementById('summaryTitle').value;
+            const category = document.getElementById('summaryCategory').value;
+            const content = document.getElementById('summaryContent').value;
+
+            if (!title || !content) {
+                alert('请填写标题和内容');
+                return;
+            }
+
+            DB.addSummary({ title, category, content });
+            closeModal('summaryModal');
+            updateSummary();
+        }
+
+        // 导入题目
+        function showImportModal() {
+            document.getElementById('importText').value = '';
+            document.getElementById('baiduUrl').value = '';
+            document.getElementById('baiduPwd').value = '';
+            const remoteUrl = localStorage.getItem('remote_questions_url') || '';
+            document.getElementById('remoteUrlInput').value = remoteUrl;
+            switchImportTab('text');
+            document.getElementById('importModal').classList.add('active');
+        }
+
+        function switchImportTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.import-tab').forEach(tab => tab.classList.remove('active'));
+            
+            if (tab === 'text') {
+                document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
+                document.getElementById('textImport').classList.add('active');
+            } else {
+                document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
+                document.getElementById('urlImport').classList.add('active');
+            }
+        }
+
+        function getQuestionKey(question) {
+            return `${question.year || ''}||${question.subject || question.category || ''}||${question.title || question.id}`;
+        }
+
+        function questionExists(question) {
+            const key = getQuestionKey(question);
+            return DB.questions.some(q => getQuestionKey(q) === key);
+        }
+
+        async function fetchQuestionsFromUrl(url) {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('无法访问远程URL，请检查链接是否有效');
+            const text = await response.text();
+            const data = JSON.parse(text);
+            if (!Array.isArray(data)) throw new Error('远程数据不是JSON数组');
+            return data;
+        }
+
+        async function syncRemoteQuestions() {
+            const urlInput = document.getElementById('remoteUrlInput');
+            const url = urlInput.value.trim();
+            if (!url) {
+                alert('请输入远程题库 URL');
+                return;
+            }
+            try {
+                const remoteQuestions = await fetchQuestionsFromUrl(url);
+                let added = 0;
+                remoteQuestions.forEach(q => {
+                    if (q.title && (q.subject || q.category) && q.correctAnswer && !questionExists(q)) {
+                        q.year = q.year || new Date().getFullYear();
+                        q.subject = q.subject || q.category;
+                        q.category = q.category || q.subject;
+                        DB.questions.push(q);
+                        added++;
+                    }
+                });
+                if (added > 0) {
+                    DB.save();
+                }
+                localStorage.setItem('remote_questions_url', url);
+                updateHomeStats();
+                initPractice();
+                alert(`已从远程同步题库（${remoteQuestions.length} 条），新增 ${added} 条`);
+            } catch (e) {
+                alert('同步失败：' + e.message);
+            }
+        }
+
+        async function syncQuestionFolder() {
+            const manifestPath = './题库/manifest.json';
+            try {
+                const manifest = await fetchQuestionsFromUrl(manifestPath);
+                if (!Array.isArray(manifest)) {
+                    throw new Error('manifest 格式错误，应为数组');
+                }
+                let totalFiles = 0;
+                let totalQuestions = 0;
+                let added = 0;
+
+                for (const item of manifest) {
+                    if (!item.url) continue;
+                    totalFiles++;
+                    try {
+                        const remoteQuestions = await fetchQuestionsFromUrl(item.url);
+                        if (!Array.isArray(remoteQuestions)) continue;
+                        totalQuestions += remoteQuestions.length;
+                        remoteQuestions.forEach(q => {
+                            if (q.title && (q.subject || q.category) && q.correctAnswer && !questionExists(q)) {
+                                q.year = q.year || new Date().getFullYear();
+                                q.subject = q.subject || q.category;
+                                q.category = q.category || q.subject;
+                                DB.questions.push(q);
+                                added++;
+                            }
+                        });
+                    } catch (error) {
+                        console.warn('加载题库文件失败：', item.url, error);
+                    }
+                }
+
+                if (added > 0) {
+                    DB.save();
+                }
+                updateHomeStats();
+                initPractice();
+                alert(`已从题库目录同步 ${totalFiles} 个文件，共检测 ${totalQuestions} 题，新增 ${added} 题`);
+            } catch (e) {
+                alert('同步题库目录失败：' + e.message + '（请确保 题库/manifest.json 存在且语法正确）');
+            }
+        }
+
+
+        async function importQuestions() {
+            const activeTab = document.querySelector('.import-tab.active').id;
+            
+            if (activeTab === 'textImport') {
+                const text = document.getElementById('importText').value;
+                try {
+                    const questions = JSON.parse(text);
+                    if (!Array.isArray(questions)) {
+                        alert('请输入有效的 JSON 数组');
+                        return;
+                    }
+
+                    questions.forEach(q => {
+                        if (q.title && q.subject && q.correctAnswer) {
+                            DB.addQuestion(q);
+                        }
+                    });
+
+                    alert(`成功导入 ${questions.length} 道题目！`);
+                    closeModal('importModal');
+                    initPractice();
+                } catch (e) {
+                    alert('JSON 格式错误：' + e.message);
+                }
+            } else {
+                // 从百度云盘导入
+                const url = document.getElementById('baiduUrl').value;
+                const pwd = document.getElementById('baiduPwd').value;
+                
+                if (!url) {
+                    alert('请输入百度云盘分享链接');
+                    return;
+                }
+                
+                try {
+                    const questions = await importFromUrl(url, pwd);
+                    questions.forEach(q => {
+                        if (q.title && q.subject && q.correctAnswer) {
+                            DB.addQuestion(q);
+                        }
+                    });
+                    alert(`成功从URL导入 ${questions.length} 道题目！`);
+                    closeModal('importModal');
+                    initPractice();
+                } catch (e) {
+                    alert('导入失败：' + e.message);
+                }
+            }
+        }
+
+        async function importFromUrl(url, pwd) {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error('无法访问URL');
+            }
+            const text = await response.text();
+            const questions = JSON.parse(text);
+            if (!Array.isArray(questions)) {
+                throw new Error('URL内容不是有效的题目数组');
+            }
+            return questions;
+        }
+
+        // 关闭模态框点击外部
+        window.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) {
+                e.target.classList.remove('active');
+            }
+        });
+
+        // 初始化
+        updateHomeStats();
+    </script>
+</body>
+</html>
